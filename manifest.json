@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "TMS Data Automation",
+  "version": "1.0",
+  "description": "Automates lead entry into TMS system from raw text data.",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "*://employer.tigihr.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://employer.tigihr.com/*", "*://tigihr.com/*", "file:///*"],
+      "js": ["content.js"]
+    }
+  ]
+}

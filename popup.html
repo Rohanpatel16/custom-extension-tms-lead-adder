@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>TMS Automation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            /* Indigo 500 */
+            --primary-hover: #4f46e5;
+            /* Indigo 600 */
+            --bg: #0f172a;
+            /* Slate 900 */
+            --card-bg: #1e293b;
+            /* Slate 800 */
+            --text: #f8fafc;
+            /* Slate 50 */
+            --text-muted: #94a3b8;
+            /* Slate 400 */
+            --border: #334155;
+            /* Slate 700 */
+            --success: #22c55e;
+            --error: #ef4444;
+        }
+
+        body {
+            width: 400px;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg);
+            color: var(--text);
+            box-sizing: border-box;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        header {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: -0.025em;
+        }
+
+        .badge {
+            font-size: 10px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 2px 8px;
+            border-radius: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        textarea,
+        select {
+            width: 100%;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            padding: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            box-sizing: border-box;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        textarea:focus,
+        select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        textarea {
+            height: 150px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .btn-primary {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            background-color: var(--border);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        #status-log {
+            margin-top: 20px;
+            background-color: #0b1120;
+            /* Darker than bg */
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            height: 120px;
+            overflow-y: auto;
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-size: 11px;
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+            display: flex;
+            gap: 8px;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .timestamp {
+            color: var(--text-muted);
+            opacity: 0.6;
+            min-width: 60px;
+        }
+
+        .log-success .message {
+            color: var(--success);
+        }
+
+        .log-error .message {
+            color: var(--error);
+        }
+
+        .log-info .message {
+            color: var(--primary);
+        }
+
+        .log-normal .message {
+            color: var(--text-muted);
+        }
+
+        .footer {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            opacity: 0.6;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h2>TMS Automation</h2>
+        <span class="badge">v1.1</span>
+    </header>
+
+    <div class="form-group">
+        <label for="industry-select">Industry Override (Optional)</label>
+        <select id="industry-select">
+            <option value="">Auto-detected / Manual Select on Page</option>
+            <option value="IT">IT</option>
+            <option value="Non-IT">Non-IT</option>
+            <option value="Banking">Banking</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="lead-data">Raw Data (Domains + Details)</label>
+        <textarea id="lead-data" placeholder="Paste your lead list here...
+Example:
+company.com
+user@company.com : : 9876543210"></textarea>
+    </div>
+
+    <button id="process-btn" class="btn-primary">
+        <span>Start Automation</span>
+    </button>
+
+    <div id="status-log">
+        <div class="log-entry log-normal">
+            <span class="timestamp">--:--:--</span>
+            <span class="message">Ready to process...</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        TMS Assistant &bull; Batch Mode Active
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
