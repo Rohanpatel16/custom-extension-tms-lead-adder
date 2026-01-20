@@ -4,6 +4,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const statusLog = document.getElementById('status-log');
   const industrySelect = document.getElementById('industry-select');
 
+  const commentSelect = document.getElementById('comment-select');
+  const customCommentContainer = document.getElementById('custom-comment-container');
+  const customCommentInput = document.getElementById('custom-comment-input');
+
+  // Toggle custom comment input
+  if (commentSelect) {
+    commentSelect.addEventListener('change', () => {
+      if (commentSelect.value === 'custom') {
+        customCommentContainer.style.display = 'block';
+      } else {
+        customCommentContainer.style.display = 'none';
+      }
+    });
+  }
+
   processBtn.addEventListener('click', async () => {
     const rawData = leadDataInput.value;
     if (!rawData.trim()) {
@@ -89,6 +104,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const processedEmails = new Set();
     let currentCompany = '';
 
+    // Get Global Comment Selection
+    let globalComment = '';
+    const selectedCommentType = commentSelect ? commentSelect.value : 'none';
+
+    if (selectedCommentType === 'cold_call') {
+      globalComment = 'Cold call';
+    } else if (selectedCommentType === 'company_lead') {
+      globalComment = 'Lead provided by company.';
+    } else if (selectedCommentType === 'custom') {
+      globalComment = customCommentInput.value.trim();
+    }
+
     // 1. Parsing and Grouping Phase
     for (let line of lines) {
       line = line.trim();
@@ -96,13 +123,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (line.includes('@')) {
         // Lead data
-        let email, mobilePart;
+        let email, mobilePart, lineComment = '';
 
-        // Handle lines without separator or with weird spacing
+        // Handle lines with separators
+        // Pattern: Email : : Mobile : : Comment
         if (line.includes(': :')) {
-          [email, mobilePart] = line.split(': :');
+          const parts = line.split(': :');
+          email = parts[0];
+          mobilePart = parts.length > 1 ? parts[1] : '';
+          lineComment = parts.length > 2 ? parts[2].trim() : '';
+
         } else if (line.includes(':')) {
-          // Fallback for simple single colon
+          // Fallback for simple single colon, usually Email : Mobile
           [email, mobilePart] = line.split(':');
         } else {
           // Just email
@@ -145,16 +177,19 @@ document.addEventListener('DOMContentLoaded', () => {
           contactPerson = contactPerson.replace(/\b\w/g, l => l.toUpperCase());
         }
 
+        const leadObj = {
+          email: email,
+          mobile: mobile,
+          contact_person: contactPerson,
+          original_line: line,
+          line_comment: lineComment
+        };
+
         if (currentCompany) {
           if (!leadsByCompany[currentCompany]) {
             leadsByCompany[currentCompany] = [];
           }
-          leadsByCompany[currentCompany].push({
-            email: email,
-            mobile: mobile,
-            contact_person: contactPerson,
-            original_line: line
-          });
+          leadsByCompany[currentCompany].push(leadObj);
         } else {
           // Fallback: Driver company from email domain if no header found yet
           // e.g. user@ethicsgroup.in -> ethicsgroup.in
@@ -164,16 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
               if (!leadsByCompany[domain]) {
                 leadsByCompany[domain] = [];
               }
-              leadsByCompany[domain].push({
-                email: email,
-                mobile: mobile,
-                contact_person: contactPerson,
-                original_line: line
-              });
-              // Note: We don't set currentCompany here globally to avoid accidentally grouping unrelated subsequent leads 
-              // if the user intended a break, but for this specific lead we use its domain.
-              // Actually, usually leads are grouped. Let's set it if it looks safe?
-              // Let's just group under this domain for this item.
+              leadsByCompany[domain].push(leadObj);
             }
           }
         }
@@ -207,12 +233,28 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3. Requirements: Keep full list
         const requirementsText = chunk.map(l => `${l.email} : ${l.mobile}`).join('\n');
 
+        // 4. Construct Comment
+        // Start with global comment
+        let finalComment = globalComment;
+
+        // Append individual line comments if they exist
+        const chunkComments = chunk
+          .filter(l => l.line_comment)
+          .map(l => `[${l.email}]: ${l.line_comment}`)
+          .join('\n');
+
+        if (chunkComments) {
+          if (finalComment) finalComment += '\n\n';
+          finalComment += chunkComments;
+        }
+
         batches.push({
           company: company,
           email: combinedEmails,
           mobile: representativeMobile, // Use found mobile, or empty string
           contact_person: mainLead.contact_person,
-          requirements: requirementsText
+          requirements: requirementsText,
+          comment: finalComment
         });
       }
     }

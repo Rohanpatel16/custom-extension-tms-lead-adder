@@ -111,7 +111,7 @@ async function fillAndSubmit(lead, globalIndustry) {
     formData.append('dealing', ''); // Default empty
     formData.append('gst', ''); // Default empty
     formData.append('requirments', lead.requirements || ''); // Now populating requirements
-    formData.append('comment', ''); // Removed comment as requested
+    formData.append('comment', lead.comment || '');
 
     // The page also sends file inputs: image_name[], image_name_2[]
     // We can append empty strings or nothing? Content-Type multipart/form-data handles it.

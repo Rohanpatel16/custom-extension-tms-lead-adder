@@ -223,6 +223,22 @@
     </div>
 
     <div class="form-group">
+        <label for="comment-select">Add Comment To Leads</label>
+        <select id="comment-select">
+            <option value="none">No Default Comment</option>
+            <option value="cold_call">Cold call</option>
+            <option value="company_lead">Lead provided by company.</option>
+            <option value="custom">Custom...</option>
+        </select>
+    </div>
+
+    <div class="form-group" id="custom-comment-container" style="display: none;">
+        <label for="custom-comment-input">Custom Comment</label>
+        <input type="text" id="custom-comment-input" placeholder="Enter your custom comment here..." 
+            style="width: 100%; background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 10px; font-family: 'Inter', sans-serif; font-size: 13px; box-sizing: border-box; outline: none;">
+    </div>
+
+    <div class="form-group">
         <label for="lead-data">Raw Data (Domains + Details)</label>
         <textarea id="lead-data" placeholder="Paste your lead list here...
 Example:
