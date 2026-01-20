@@ -198,16 +198,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const chunk = leads.slice(i, i + 5);
         const mainLead = chunk[0];
 
-        // 1. Emails: Join all 5 with comma and space (since input type=text strips newlines)
+        // 1. Emails: Join all 5 with comma and space
         const combinedEmails = chunk.map(l => l.email).join(', ');
 
-        // 2. Requirements: "Email : Mobile" for all of them (so we don't lose the numbers)
+        // 2. Mobile: Find the first non-empty mobile in this chunk
+        const representativeMobile = chunk.find(l => l.mobile && l.mobile.length > 0)?.mobile || '';
+
+        // 3. Requirements: Keep full list
         const requirementsText = chunk.map(l => `${l.email} : ${l.mobile}`).join('\n');
 
         batches.push({
           company: company,
-          email: combinedEmails, // All emails in the email field
-          mobile: mainLead.mobile, // First mobile
+          email: combinedEmails,
+          mobile: representativeMobile, // Use found mobile, or empty string
           contact_person: mainLead.contact_person,
           requirements: requirementsText
         });
